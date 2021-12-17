@@ -1,0 +1,43 @@
+<Device Model="DIN-AP3">
+   <Network Type="Cresnet" Id="01">
+      <Device Model="TPS-2000L,TPS-2000," DeviceId="03" Name="sigterm"/>
+      <Device Model="CLX-2DIMU8,CLX-2DIMU8-277,CLXI-2DIMU8,CLXI-2DIMU8-277" DeviceId="0B" Name="**do not use"/>
+      <Device Model="CLX-2DIMU8,CLX-2DIMU8-277,CLXI-2DIMU8,CLXI-2DIMU8-277" DeviceId="0C" Name="LCP1 - mod1"/>
+      <Device Model="CLX-2DIMU8,CLX-2DIMU8-277,CLXI-2DIMU8,CLXI-2DIMU8-277" DeviceId="0D" Name="LCP1 - mod2"/>
+      <Device Model="CLX-2DIMU8,CLX-2DIMU8-277,CLXI-2DIMU8,CLXI-2DIMU8-277" DeviceId="0E" Name="LCP1 - mod3"/>
+      <Device Model="CLX-2DIMU8,CLX-2DIMU8-277,CLXI-2DIMU8,CLXI-2DIMU8-277" DeviceId="0F" Name="LCP1 - mod4"/>
+      <Device Model="CLX-2DIMU8,CLX-2DIMU8-277,CLXI-2DIMU8,CLXI-2DIMU8-277" DeviceId="10" Name="LCP1 - mod5"/>
+      <Device Model="C2N-CBD-P" DeviceId="25" Name="**do not use"/>
+      <Device Model="C2N-CBD-P" DeviceId="26" Name="PDR 1"/>
+      <Device Model="C2N-CBD-P" DeviceId="27" Name="PDR 2"/>
+      <Device Model="C2N-CBD-P" DeviceId="28" Name="PDR 3"/>
+      <Device Model="C2N-CBD-P" DeviceId="29" Name="PDR 4"/>
+      <Device Model="C2N-CBD-P" DeviceId="2A" Name="1st FL General"/>
+      <Device Model="C2N-CBD-P" DeviceId="2B" Name="2nd FL General"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="2D" Name="**do not use"/>
+      <Device Model="GL-EXP-SW-CN" DeviceId="2E" Name="Lighted Sign DIMU     EXP1"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="2F" Name="Mezz Lounge Track DIMU     EXP2"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="30" Name="Lounge Dining Recessed DIMU     EXP3"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="31" Name="Collumn Wall Sconces DIMU     EXP4"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="32" Name="PDR 1 Chandelier DIMU     EXP5"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="33" Name="Stair Mezz Chandelier DIMU     EXP6"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="34" Name="Ext Facade Collumns Wall Sconces DIMU     EXP7"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="35" Name="PDR 3 Chandelier DIMU     EXP8"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="36" Name="Ext Planting Bed Landscape DIMU     EXP9"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="37" Name="PDR 2 Chandelier DIMU     EXP10"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="38" Name="Mezz Track uplights DIMU     EXP11"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="39" Name="Recessed Sign DIMU     EXP12"/>
+      <Device Model="GL-EXP-DIMU-CN" DeviceId="3A" Name="Faux Doors DIMU     EXP13"/>
+      <Device Model="GLS-ODT-C-CN" DeviceId="97" Name="**do not use"/>
+      <Device Model="GLS-ODT-C-CN" DeviceId="98" Name="Mens occ01"/>
+      <Device Model="GLS-ODT-C-CN" DeviceId="99" Name="Mens occ02"/>
+      <Device Model="GLS-ODT-C-CN" DeviceId="9A" Name="Wowomens occ01"/>
+      <Device Model="GLS-ODT-C-CN" DeviceId="9B" Name="Wowomens occ02"/>
+   </Network>
+   <Network Type="Ethernet" Id="02">
+      <Device Model="TSW-760" DeviceId="03" Name="tsw01 FL1"/>
+      <Device Model="Core3 UI XPanel" DeviceId="10" Name="XPanel 2.0 Smart Graphics"/>
+      <Device Model="Crestron_App" DeviceId="11" Name="ipad01"/>
+      <Device Model="Crestron_App" DeviceId="12" Name="ipad02"/>
+   </Network>
+</Device>

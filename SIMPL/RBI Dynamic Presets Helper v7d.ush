@@ -1,0 +1,301 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.04.01
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,
+  Exclusions_CDS=5
+  Inclusions_CDS=6
+  Name=RBI Dynamic Presets Helper v7d
+  SmplCName=RBI Dynamic Presets Helper v7d.usp
+  Code=1
+  SysRev5=4.006
+  SMWRev=3.00.00
+  InputCue1=presets_init
+  InputSigType1=Digital
+  InputCue2=preset_recall[1]
+  InputSigType2=Digital
+  InputCue3=preset_recall[2]
+  InputSigType3=Digital
+  InputCue4=preset_recall[3]
+  InputSigType4=Digital
+  InputCue5=preset_recall[4]
+  InputSigType5=Digital
+  InputCue6=preset_recall[5]
+  InputSigType6=Digital
+  InputCue7=preset_recall[6]
+  InputSigType7=Digital
+  InputCue8=preset_recall[7]
+  InputSigType8=Digital
+  InputCue9=preset_recall[8]
+  InputSigType9=Digital
+  InputCue10=preset_recall[9]
+  InputSigType10=Digital
+  InputCue11=preset_recall[10]
+  InputSigType11=Digital
+  InputCue12=preset_save[#]
+  InputSigType12=Digital
+  OutputCue1=preset_saved_fb
+  OutputSigType1=Digital
+  OutputCue2=preset_clear
+  OutputSigType2=Digital
+  OutputCue3=preset_recalling_fb[#]
+  OutputSigType3=Digital
+  InputList2Cue1=dali_zones[1]
+  InputList2SigType1=Analog
+  InputList2Cue2=dali_zones[2]
+  InputList2SigType2=Analog
+  InputList2Cue3=dimmable_zones[1]
+  InputList2SigType3=Analog
+  InputList2Cue4=dimmable_zones[2]
+  InputList2SigType4=Analog
+  InputList2Cue5=harvested_zones[1]
+  InputList2SigType5=Analog
+  InputList2Cue6=harvested_zones[2]
+  InputList2SigType6=Analog
+  InputList2Cue7=level_in[#]
+  InputList2SigType7=Analog
+  OutputList2Cue1=level_out[#]
+  OutputList2SigType1=Analog
+  ParamCue1=[Reference Name]
+  ParamCue2=roomID
+  ParamSigType2=String
+  ParamCue3=file_path
+  ParamSigType3=String
+  ParamCue4=slew_time
+  ParamSigType4=Time
+  ParamCue5=default_level[1]
+  ParamSigType5=Constant
+  ParamCue6=default_level[2]
+  ParamSigType6=Constant
+  ParamCue7=default_level[3]
+  ParamSigType7=Constant
+  ParamCue8=default_level[4]
+  ParamSigType8=Constant
+  ParamCue9=default_level[5]
+  ParamSigType9=Constant
+  ParamCue10=default_level[6]
+  ParamSigType10=Constant
+  ParamCue11=default_level[7]
+  ParamSigType11=Constant
+  ParamCue12=default_level[8]
+  ParamSigType12=Constant
+  ParamCue13=default_level[9]
+  ParamSigType13=Constant
+  ParamCue14=default_level[10]
+  ParamSigType14=Constant
+  MinVariableInputs=12
+  MaxVariableInputs=21
+  MinVariableInputsList2=7
+  MaxVariableInputsList2=38
+  MinVariableOutputs=3
+  MaxVariableOutputs=12
+  MinVariableOutputsList2=1
+  MaxVariableOutputsList2=32
+  MinVariableParams=4
+  MaxVariableParams=13
+  Expand=expand_separately
+  Expand2=expand_separately
+  ProgramTree=Logic
+  SymbolTree=32
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp2=2
+  Pp3=3
+  Pp4=4
+  Pp5=5
+  Pp6=6
+  Pp7=7
+  Pp8=8
+  Pp9=9
+  Pp10=10
+  Pp11=11
+  Pp12=12
+  Pp13=13
+  Pp14=14
+  MPp=14
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2_RBI_Dynamic_Presets_Helper_v7d
+  SymJam=NonExclusive
+  FileName=RBI Dynamic Presets Helper v7d.ush
+  SIMPLPlusModuleEncoding=0
+  clz1=Zone_Control_Helper
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=2
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=3
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=16
+  NoS=True
+  DNF=16
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=5
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=6
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=7
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=8
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=9
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=10
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=11
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=12
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=13
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=14
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=0
+[END]

@@ -1,0 +1,271 @@
+/*
+Dealer Name: Riordan Brothers
+Programmer: Hope Roth
+Comments:
+*/
+
+
+#SYMBOL_NAME "RBI Single Zone Control SPlus v2"
+#CATEGORY "32" // Miscellaneous
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "Zone_Control_Helper"
+
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+
+DIGITAL_INPUT refresh, _skip_, zoneOn, zoneOff, zoneOnOff, zoneRaise, zoneLower, saveOnLvl, saveOffLvl;
+
+ANALOG_INPUT trueFB;
+
+DIGITAL_OUTPUT daliFB, dimmableFB, inUseFB, zoneOnFB, zoneOffFB, rampingFB, zoneonP, zoneoffP, onLvlSaved, offLvlSaved, raiseFromOff; 
+ANALOG_OUTPUT zoneLevel, slewRate, rampTime;
+STRING_OUTPUT friendlyName;
+
+STRING_PARAMETER FileName[50];
+STRING_PARAMETER zoneID[50];
+
+INTEGER lowerBound, upperBound, onLevel, offLevel;
+INTEGER pulseTime; 
+
+ZoneHelper zHelp;
+
+RAMP_INFO presetRamp, rlRamp;
+
+CMutex rMutex; 
+
+
+
+/* Event Handlers */
+
+EventHandler HandleDataChange(ZoneHelper Z, CustomEventArgs args){
+    
+			daliFB = args.daliFB;
+            dimmableFB = args.dimmableFB;
+            inUseFB = args.inUseFB;
+            slewRate = args.slewRate;
+            rampTime = args.rampTime;
+			lowerBound = args.lowerBound;
+			upperBound = args.upperBound;
+            friendlyName = args.friendlyName;
+			OnLevel = args.onLevel;
+			OffLevel = args.offLevel;
+			raiseFromOff = args.raiseFromOff;
+
+			presetRamp.rampLowerBound = lowerBound;
+			presetRamp.rampUpperBound = upperBound;
+			presetRamp.rampTransitionTime = (slewrate * 100);
+
+			rlRamp.rampLowerBound = lowerBound;
+			rlRamp.rampUpperBound = upperBound;
+			rlRamp.rampTransitionTime = (rampTime * 100);
+
+ 
+}
+
+
+/**
+
+Function to set the lights to a specific level (specified in the parameter). Will wait until the Mutex is available.
+
+
+**/
+
+
+function lightsPreset(INTEGER lvl){ 
+      
+    rMutex.WaitForMutex(); // don't change the levels if it's in use by another function
+   	rampingFB = 1; //we are now ramping
+
+	presetRamp.rampTargetValue = lvl; // Ramp to target level
+	createRamp(zoneLevel, presetRamp);
+	
+	while(isRamping(zoneLevel)=1){
+
+		wait(1);
+
+	}
+
+	rampingFB = 0;		//we aren't ramping anymore 
+    rMutex.ReleaseMutex(); // let other threads access the lights
+
+}
+
+function lightsRamp(INTEGER lvl){ 
+      
+    rMutex.WaitForMutex(); // don't change the levels if it's in use by another function
+   	rampingFB = 1; //we are now ramping
+
+	rlRamp.rampTargetValue = lvl; // Ramp to target level
+	createRamp(zoneLevel, rlRamp);
+	
+	while(isRamping(zoneLevel)=1){
+
+		wait(1);
+
+	}
+
+    
+
+	rampingFB = 0;		//we aren't ramping anymore 
+    rMutex.ReleaseMutex(); // let other threads access the lights
+
+}
+
+
+push refresh{ // get updated zone config from our XML file
+
+	zHelp.parseXML(FileName,zoneID);
+
+}
+
+push zoneOn{ //send the lights to our upper bound (usually 100%)
+
+	lightsPreset(onLevel);
+
+}
+
+push zoneOff{ //send the lights to 0%
+
+	lightsPreset(offLevel);
+
+
+}
+
+push zoneOnOff{
+
+ 
+		if(zoneOnFB){
+			lightsPreset(offLevel);
+			}
+
+   	 	else{
+        	lightsPreset(onLevel);
+	
+		}
+
+	}			
+
+
+
+	push zoneRaise {
+
+		if (raiseFromOff){
+
+		lightsRamp(upperBound); //if raise from off is true, always ramp up
+		}
+
+
+		else if (zoneOnFB){
+             lightsRamp(upperBound); //otherwise, only ramp up if the lights are on
+		}
+
+
+
+	}
+
+	release zoneRaise {
+	
+		stopRamp(zoneLevel); //stop ramping
+	
+}
+           
+
+	push zoneLower { 
+     
+		lightsRamp(lowerBound); //ramp down
+
+
+}
+
+	release zoneLower {
+	
+		stopRamp(zoneLevel); //stop ramping
+		
+}
+
+
+	
+
+
+threadsafe change trueFB{
+
+	if (trueFB > offLevel){
+		zoneOnFB = 1;
+		zoneOffFB = 0;
+
+		PULSE(pulseTime, zoneonP);
+		}
+
+
+	else{
+        zoneOnFB = 0;
+		zoneOffFB = 1;
+
+		PULSE(pulseTime, zoneoffP);
+		}
+
+}
+
+
+	push saveOnLvl {
+
+		integer status;
+
+		onLevel = trueFB;
+
+         status = zHelp.SaveOnLevel(FileName, trueFB, zoneID); 
+
+		if (status=1){
+            
+				PULSE(200, onLvlSaved);
+
+			}
+
+	}
+
+	push saveOffLvl {
+
+		integer status;
+
+
+		OffLevel = trueFB;
+
+         status = zHelp.SaveOffLevel(FileName, trueFB, zoneID); 
+	
+			if (status=1){
+            
+				PULSE(200, offLvlSaved);
+
+			}
+
+	}
+
+
+     
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	WaitForInitializationComplete();
+	RegisterEvent(zHelp,OnDataChange,HandleDataChange);
+	pulseTime = 25;
+
+}
+
+
+
+

@@ -1,0 +1,446 @@
+/*
+Dealer Name: Riordan Brothers
+Programmer: Hope Roth
+Comments:
+*/
+
+#SYMBOL_NAME "RBI Dynamic Presets Helper v7d"
+// #HINT ""
+// #CATEGORY "" 
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+DIGITAL_INPUT presets_init, preset_recall[10], preset_save[10]; 
+ANALOG_INPUT dali_zones[2], dimmable_zones[2], harvested_zones[2], level_in[32];
+DIGITAL_OUTPUT preset_saved_fb, preset_clear, preset_recalling_fb[10];
+ANALOG_OUTPUT level_out[32];
+STRING_PARAMETER roomID[50];
+STRING_PARAMETER file_path[50];
+INTEGER_PARAMETER slew_time;
+
+#BEGIN_PARAMETER_PROPERTIES slew_time
+	propValidUnits = unitTime;
+#END_PARAMETER_PROPERTIES
+
+INTEGER_PARAMETER default_level[10];
+
+FILE_INFO nFileInfo;
+
+SIGNED_INTEGER nFileHandle;
+SIGNED_INTEGER nFileFound;
+SIGNED_INTEGER iErrorCode; 
+
+INTEGER preset_levels[10][32]; 
+INTEGER three_series; 
+INTEGER preset_is_ramping;
+INTEGER last_recalled_preset;
+INTEGER i;
+
+STRING sBuf[20000];
+STRING file_contents[20000];
+STRING file_line[50];
+STRING str[50];
+
+RAMP_INFO presetRamp;
+
+STRING_FUNCTION get_full_path(string preset_name)
+{
+	string full_path[255];
+
+    if(three_series)
+	{	  
+		MAKESTRING (full_path, "%s\\%s\\%s.txt", file_path, roomID, preset_name); //create our full path for reading and saving
+    }
+
+	else
+	{
+        MAKESTRING (full_path, "%s\\%s-%s.txt", file_path, roomID, preset_name); //create our full path for reading and saving
+	}
+
+	return (full_path);
+}
+
+FUNCTION init_presets(string preset_name, integer index)
+{
+  
+	string full_path[255];
+	full_path = get_full_path(preset_name);
+
+	StartFileOperations(); //we're going to be reading and writing files
+          
+ 	if (three_series=1)
+		{
+           nFileFound = FindFirstShared(full_path, nFileInfo); //look for our file
+         }
+	else
+	{		
+		nFileFound = FindFirst(full_path, nFileInfo); //look for our file
+     }
+
+	IF (nFileFound < 0){ //if file not found
+
+        GenerateUserNotice ("Creating New Presets File: %s \n", full_path); //log that we're creating a new file
+
+			if (three_series=1)
+			{
+				nFileHandle = FileOpenShared(full_path, _O_CREAT | _O_TEXT | _O_WRONLY); //create new file that we can write to
+            }
+		
+	 
+			else 
+			{
+				nFileHandle = FileOpen(full_path, _O_CREAT | _O_TEXT | _O_WRONLY); //create new file that we can write to
+        	}
+                   
+               
+
+		sBuf = "";
+		
+
+		FOR (i = 1 to 32)
+		{
+			preset_levels[index][i] = default_level[index]; //set default levels for output here instead of reading them in from a file
+			MAKESTRING(file_line, "load%02u = %u,\r", i, default_level[index]); //create string
+			sBuf = sBuf + file_line;
+		}
+            
+			FileWrite(nFileHandle, sBuf, len(sBuf)); //add string to our file
+			FileClose(nFileHandle); //done with our file, so close it
+	}
+
+	ELSE
+	{
+        if (three_series=1)
+     	{
+		nFileHandle = FileOpenShared(full_path, _O_TEXT | _O_RDONLY); //file exists, so let's read from it
+        }
+
+		else  
+        {
+		nFileHandle = FileOpen(full_path, _O_TEXT | _O_RDONLY); //file exists, so let's read from it
+        }
+
+
+		IF (nFileHandle < 0) //if some  file error, log it
+		{
+		GenerateUserError("Error Opening: %s, Error Code: %u\n", full_path, nFileHandle);
+		FileClose(nFileHandle); //done with our file, so close it
+    	}
+
+
+		ELSE
+		{
+
+       iErrorCode = Fileread(nFileHandle, file_contents, 20000); // read in our file contents
+
+
+		if (iErrorCode<0){
+          GenerateUserError("Error Creating String, Error Code: %u\n", iErrorCode);
+
+		}
+         
+
+         
+		
+		FOR (i = 1 to 32){
+
+			file_line = REMOVE(",", file_contents);
+			str = REMOVE ("=", file_line);			
+			preset_levels[index][i] = Atoi (file_line);
+
+		} //for 
+
+             FileClose(nFileHandle); //done with our file, so close it
+
+		
+		} //else
+	
+	}//else
+
+	EndFileOperations(); //we're done with file operations
+}
+
+FUNCTION invoke_presets_init()
+{
+
+	integer i;
+	string preset_name[20];
+    
+	init_presets("all_off", 1);
+	init_presets("all_on", 2);
+
+	for (i = 3 to 10) // iterate through numbered presets
+	{ 
+		makestring (preset_name, "preset%02d", i-2);
+		init_presets(preset_name, i);	
+    }
+
+}
+
+INTEGER_FUNCTION GetDimmable(integer zoneId) // ZoneId = 1-32
+{
+	integer b, z;
+    
+	if(zoneId > 32) //invalid zone ID
+	{
+		return (0);
+	}
+	
+	else if(zoneId > 16)
+	{
+		b = dimmable_zones[2];
+		z = (zoneId - 16);
+    }
+    
+	else
+	{
+		b = dimmable_zones[1];
+        z = zoneId; 
+	}
+		
+	
+	if(b & (1 << (z - 1)))
+	{
+		return (1);
+	}
+	else
+	{
+		return (0);
+	}
+	
+}
+
+INTEGER_FUNCTION GetDali(integer zoneId) // ZoneId = 1-32
+{
+	integer b, z;
+    
+	if(zoneId > 32) //invalid zone ID
+	{
+		return (0);
+	}
+	
+	else if(zoneId > 16)
+	{
+		b = dali_zones[2];
+		z = (zoneId - 16);
+    }
+    
+	else
+	{
+		b = dali_zones[1];
+        z = zoneId; 
+	}
+			
+	if(b & (1 << (z - 1)))
+	{
+		return (1);
+	}
+	
+	else
+	{
+		return (0);
+	}
+	
+}
+
+INTEGER_FUNCTION GetHarvested(integer zoneId) // ZoneId = 1-32
+{
+	integer b, z;
+    
+	if(zoneId > 32) //invalid zone ID
+	{
+		return (0);
+	}
+	
+	else if(zoneId > 16)
+	{
+		b = harvested_zones[2];
+		z = (zoneId - 16);
+    }
+    
+	else
+	{
+		b = harvested_zones[1];
+        z = zoneId; 
+	}
+		
+	
+	if(b & (1 << (z - 1)))
+	{
+		return (1);
+	}
+	else
+	{
+		return (0);
+	}
+	
+}
+
+
+		
+
+PUSH preset_save
+{
+	integer p;
+	string preset_name[50];
+	string full_path[255];
+
+	p = getlastmodifiedarrayindex();
+
+	if (p = 1) // save all off
+	{
+         preset_name = "all_off";
+	}
+
+
+	else if (p=2) //save all on
+	{
+		preset_name = "all_on";
+	}
+	
+	else
+	{
+        makestring (preset_name, "preset%02d", p-2);    	
+	}
+
+	full_path = get_full_path(preset_name); //create our full path for reading and saving	
+	StartFileOperations(); //starting file ops
+
+	if(three_series=1)
+	{	
+		nFileHandle = FileOpenShared(full_path, _O_TEXT | _O_CREAT | _O_WRONLY |_O_TRUNC); //open file for writing
+    }
+
+	else
+	{	
+		nFileHandle = FileOpen(full_path, _O_TEXT | _O_CREAT | _O_WRONLY |_O_TRUNC); //open file for writing
+    }
+
+
+	IF (nFileHandle<0) //something went wrong
+	{ 
+		GenerateUserError("Error Opening: %s, Error Code: %u \n", full_path, nFileHandle);
+	}
+
+
+	ELSE //sucessful open!
+	{
+		sBuf = "";
+                
+		FOR (i = 1 to 32)
+		{
+           	preset_levels[p][i] = level_in[i];
+			MAKESTRING (file_line, "load%02u = %u,\r", i, level_in[i]); //create string
+			sBuf = sBuf + file_line;           
+		}
+
+		iErrorCode = FileWrite(nFileHandle, sBuf, len(sBuf)); //add string to our file 	
+
+        if (iErrorCode < 0)
+		{
+     		GenerateUserError("Error Saving To: %s, Error Code: %u \n", full_path, nFileHandle);
+		}
+	} 
+
+	if (iErrorCode >= 0)
+	{
+		PULSE (25, preset_saved_fb);
+	}
+       
+	FileClose(nFileHandle); //done with our file, so close it
+	EndFileOperations(); // no more file ops
+
+}
+
+
+PUSH preset_recall 
+{
+	preset_is_ramping = 1;
+	last_recalled_preset = getlastmodifiedarrayindex();
+	
+  	WAIT (((slew_time*100)+50), preset_wait)
+	{ 
+		preset_is_ramping = 0;
+	}
+	
+	RETIMEWAIT (((slew_time*100)+50), preset_wait); // if we just created the wait, this does nothing... if it's in progress, it restarts it
+	  
+	FOR (i = 1 to 32)
+	{
+	
+		if ((getHarvested(i))&& (last_recalled_preset=3)) //check to see if this zone is harvested, and we've recalled preset01
+		{
+			//do nothing, this is a harvested zone, and we called the daylight harvesting scene
+		}
+		    
+		else if ((getDali(i))||(!getdimmable(i)))	// dali or not dimmable	
+		{
+    		level_out[i] = preset_levels[last_recalled_preset][i]; // go directly to the correct level
+
+		}	 // else if
+
+		else 
+		{
+	
+        	if (three_series=0)
+        	{
+				presetRamp.rampBaseValue = level_in[i]; //prevent a 2 series from having the level jump all over
+			}
+				
+			presetRamp.rampTargetValue = preset_levels[last_recalled_preset][i];
+			CreateRamp(level_out[i], presetRamp);
+			
+		} //else
+
+	} //for
+	
+}
+  
+push presets_init
+
+{
+	invoke_presets_init();
+}
+
+change level_in
+{
+ 	integer	z;
+	
+	z = getlastmodifiedarrayindex(); //which level changed
+	
+	if ((getHarvested(z))&&(last_recalled_preset=3)) //check to see if this is a harvested zone, and the current preset is preset01
+	{	
+		//do nothing, this zone is going to change when harvesting
+	}
+		
+	else if (preset_is_ramping = 0) //check to see if the level changed because a preset was ramping
+		{
+			PULSE (25, preset_clear) ; //clear all presets fb
+        }
+}
+
+Function Main()
+{
+    WaitForInitializationComplete();
+
+	if (GetSeries()=3){
+        three_series = 1;
+		 }
+		  
+	presetRamp.rampisAbsolute = 1;
+	presetRamp.rampTransitionTime = (slew_time);
+		
+	invoke_presets_init();
+    
+}
+
+
+
